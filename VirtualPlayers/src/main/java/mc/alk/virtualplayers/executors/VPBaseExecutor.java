@@ -1,20 +1,18 @@
 package mc.alk.virtualplayers.executors;
 
+import mc.alk.virtualplayers.api.VirtualPlayer;
+import mc.alk.virtualplayers.api.Vps;
+import mc.alk.virtualplayers.util.Util;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import mc.alk.virtualplayers.VirtualPlayers;
-import mc.alk.virtualplayers.api.VirtualPlayer;
-import mc.alk.virtualplayers.api.Vps;
-import mc.alk.virtualplayers.util.Util;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 /**
  * @author alkarin
@@ -23,13 +21,17 @@ public class VPBaseExecutor extends CustomCommandExecutor {
 
     static boolean showTransitionsToPlayer = true;
     static boolean showEventMessages = true;
-    
+
     protected VPBaseExecutor(Plugin plugin) {
         super(plugin);
     }
 
     public VPBaseExecutor(Plugin plugin, int i) {
         super(plugin, i);
+    }
+
+    public static void setEventMessages(boolean visibility) {
+        showEventMessages = visibility;
     }
 
     @Override
@@ -116,9 +118,5 @@ public class VPBaseExecutor extends CustomCommandExecutor {
             players.add(Vps.getApi().getOrCreate(name));
         }
         return players;
-    }
-
-    public static void setEventMessages(boolean visibility) {
-        showEventMessages = visibility;
     }
 }

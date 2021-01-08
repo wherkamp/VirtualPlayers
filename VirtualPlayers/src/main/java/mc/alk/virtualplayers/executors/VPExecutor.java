@@ -1,17 +1,14 @@
 package mc.alk.virtualplayers.executors;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import mc.alk.virtualplayers.VirtualPlayers;
 import mc.alk.virtualplayers.api.VirtualPlayer;
 import mc.alk.virtualplayers.api.Vps;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author alkarin
@@ -26,6 +23,16 @@ public class VPExecutor extends VPBaseExecutor {
     public VPExecutor(Plugin plugin) {
         super(plugin);
         useAliasIndex(0);
+    }
+
+    @MCCommand(cmds = {"setMessages"}, op = true)
+    public static void setPlayerMessages(boolean visibility) {
+        Vps.getApi().setGlobalMessages(visibility);
+    }
+
+    @MCCommand(cmds = {"setEventMessages"}, op = true)
+    public static void setEventMessages(boolean visibility) {
+        showEventMessages = visibility;
     }
 
     @MCCommand(cmds = {"ap", "addPlayers"}, op = true)
@@ -67,16 +74,6 @@ public class VPExecutor extends VPBaseExecutor {
     @MCCommand(cmds = {"hideMessages"}, op = true)
     public boolean hideMessages(CommandSender sender) {
         return sendMessage(sender, "&2VirtualPlayer messages &cdisabled");
-    }
-
-    @MCCommand(cmds = {"setMessages"}, op = true)
-    public static void setPlayerMessages(boolean visibility) {
-        Vps.getApi().setGlobalMessages(visibility);
-    }
-
-    @MCCommand(cmds = {"setEventMessages"}, op = true)
-    public static void setEventMessages(boolean visibility) {
-        showEventMessages = visibility;
     }
 
 }

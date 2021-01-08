@@ -1,23 +1,20 @@
 package mc.alk.virtualplayers.nms.v1_13_R1;
 
 import com.mojang.authlib.GameProfile;
-
-import java.util.List;
-import java.util.UUID;
-
 import mc.alk.virtualplayers.api.VirtualPlayer;
 import mc.alk.virtualplayers.api.VirtualPlayerFactory;
 import mc.alk.virtualplayers.util.Util;
-
 import net.minecraft.server.v1_13_R1.MinecraftServer;
 import net.minecraft.server.v1_13_R1.PlayerInteractManager;
 import net.minecraft.server.v1_13_R1.WorldServer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Make, track, & delete VirtualPlayers.

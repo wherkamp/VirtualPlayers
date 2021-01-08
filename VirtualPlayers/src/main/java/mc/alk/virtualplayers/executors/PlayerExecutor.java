@@ -1,32 +1,12 @@
 package mc.alk.virtualplayers.executors;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import mc.alk.virtualplayers.VirtualPlayers;
+import mc.alk.battlebukkitlib.DamageUtil;
 import mc.alk.virtualplayers.api.VirtualPlayer;
 import mc.alk.virtualplayers.api.Vps;
-import mc.alk.battlebukkitlib.DamageUtil;
 import mc.alk.virtualplayers.util.InventoryUtil;
 import mc.alk.virtualplayers.util.Util;
-
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -42,15 +22,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -59,6 +31,10 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * @author alkarin
@@ -188,7 +164,7 @@ public class PlayerExecutor extends VPBaseExecutor {
         }
         return true;
     }
-    
+
     @MCCommand(cmds = {"movetome", "movehere"}, op = true)
     public boolean moveVirtualPlayerToMe(CommandSender sender, VirtualPlayer vp) {
         if (!(sender instanceof Player)) {
@@ -255,7 +231,7 @@ public class PlayerExecutor extends VPBaseExecutor {
         vp.respawn(w.getSpawnLocation());
         return sendMessage(sender, "&6" + vp.getName() + "&2 respawned!");
     }
-    
+
     /**
      * Used to test vp.getNearbyEntities()
      */
@@ -263,13 +239,13 @@ public class PlayerExecutor extends VPBaseExecutor {
     public boolean getNearbyEntities(CommandSender sender, VirtualPlayer vp) {
         return getNearbyEntities(sender, vp, 15);
     }
-    
+
     /**
      * This is a preview of the PIE cmd (PlayerPickupItemEvent).
-     * 
-     * vp.getNearbyEntities() does not give the same results as 
+     * <p>
+     * vp.getNearbyEntities() does not give the same results as
      * sender.getNearbyEntities() when they both have the same location.
-     * 
+     * <p>
      * sender.getNearbyEntities() works.
      * vp.getNearbyEntities() does NOT work.
      * vp.getNearbyEntities() always returns an empty List.
@@ -282,43 +258,43 @@ public class PlayerExecutor extends VPBaseExecutor {
         sender.sendMessage("Util.getNearbyEntities(vp)");
         sender.sendMessage("VirtualPlayer " + vp.getName() + " has found " + entities.size() + " nearby entities (Util).");
         for (Entity e : entities) {
-            sender.sendMessage(" - " + e.getType().name() );
+            sender.sendMessage(" - " + e.getType().name());
         }
         if (sender instanceof Player) {
             Player player = (Player) sender;
             entities = player.getNearbyEntities(radius, radius, radius);
             sender.sendMessage("There are " + entities.size() + " entities near the CommandSender.");
             for (Entity e : entities) {
-                sender.sendMessage(" - " + e.getType().name() );
+                sender.sendMessage(" - " + e.getType().name());
             }
         }
         sender.sendMessage("--------------------------");
         sender.sendMessage("vp.getNearbyEntities()");
         sender.sendMessage("VirtualPlayer " + vp.getName() + " has found " + eList.size() + " nearby entities (vp).");
         for (Entity e : entities) {
-            sender.sendMessage(" - " + e.getType().name() );
+            sender.sendMessage(" - " + e.getType().name());
         }
         if (sender instanceof Player) {
             Player player = (Player) sender;
             entities = player.getNearbyEntities(radius, radius, radius);
             sender.sendMessage("There are " + entities.size() + " entities near the CommandSender.");
             for (Entity e : entities) {
-                sender.sendMessage(" - " + e.getType().name() );
+                sender.sendMessage(" - " + e.getType().name());
             }
         }
         sender.sendMessage("--------------------------");
         return true;
     }
-    
+
     /**
      * These methods do not return the same results:.
      * <pre>
      * - vp.getLocation().getChunk().getEntities()
      * - vp.getNearbyEntities()
-     * 
+     *
      * When conditions are the same, and when the same results are expected.
      * </pre>
-     * 
+     * <p>
      * vp.getLocation().getChunk().getEntities() works.
      * vp.getNearbyEntities() does NOT work.
      * vp.getNearbyEntities() always returns an empty List.
@@ -331,14 +307,14 @@ public class PlayerExecutor extends VPBaseExecutor {
             Entity e = entities[x];
             if (e instanceof Player) {
                 Player p = (Player) e;
-                sender.sendMessage(" - " + p.getName() );
+                sender.sendMessage(" - " + p.getName());
             } else {
-                sender.sendMessage(" - " + entities[x].getType().name() );
+                sender.sendMessage(" - " + entities[x].getType().name());
             }
         }
         return true;
     }
-    
+
     @MCCommand(cmds = {"pie", "pickupItems", "PickupItemEvent"}, op = true)
     public boolean pickupItemEvent(CommandSender sender, VirtualPlayer vp) {
         return pickupItemEvent(sender, vp, 16);
@@ -403,7 +379,7 @@ public class PlayerExecutor extends VPBaseExecutor {
         } else {
             return sendMessage(sender,
                     "&6" + vp.getName() + "&e placed " + mat + " on "
-                    + old + "  at &4" + Util.getLocString(loc)
+                            + old + "  at &4" + Util.getLocString(loc)
             );
         }
     }

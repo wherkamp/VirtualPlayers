@@ -1,20 +1,16 @@
 package mc.alk.virtualplayers.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import mc.euro.bukkitinterface.BukkitInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.*;
+
 /**
- *
  * @author Nikolai
  */
 public interface VirtualPlayersAPI {
-    
+
     /**
      * Returns all online players, including api.VirtualPlayers. <br/><br/>
      * <pre>
@@ -35,31 +31,40 @@ public interface VirtualPlayersAPI {
         });
         players.addAll(BukkitInterface.getOnlinePlayers());
         return players;
-    };
+    }
+
+    ;
 
     public Player makeVirtualPlayer(String name) throws Exception;
+
     public void setEventMessages(boolean visibility);
+
     public void deleteVirtualPlayer(VirtualPlayer vp);
+
     public void deleteVirtualPlayers();
-    
+
     public default void setGlobalMessages(boolean visibility) {
         VirtualPlayerFactory.getVirtualPlayers().forEach((vp) -> {
             vp.setShowMessages(visibility);
         });
     }
 
-     public default Player[] getOnlinePlayersArray() {
+    public default Player[] getOnlinePlayersArray() {
         return getOnlinePlayers().toArray(new Player[0]);
-    };
-     
+    }
+
+    ;
+
     public default Collection<? extends VirtualPlayer> getVirtualPlayers() {
         return VirtualPlayerFactory.getVirtualPlayers();
-    };
-    
+    }
+
+    ;
+
     public default List<VirtualPlayer> getVirtualPlayersList() {
         return VirtualPlayerFactory.getNewPlayerList();
     }
-    
+
     public default void setPlayerMessages(boolean visibility) {
         getVirtualPlayers().forEach((vp) -> {
             vp.setShowMessages(visibility);

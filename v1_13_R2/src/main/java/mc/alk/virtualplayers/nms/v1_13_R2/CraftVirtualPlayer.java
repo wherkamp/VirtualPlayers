@@ -1,22 +1,9 @@
 package mc.alk.virtualplayers.nms.v1_13_R2;
 
 import com.mojang.authlib.GameProfile;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import mc.alk.virtualplayers.api.VirtualPlayer;
 import mc.alk.virtualplayers.util.Util;
-
-import net.minecraft.server.v1_13_R2.BlockPosition;
-import net.minecraft.server.v1_13_R2.EntityPlayer;
-import net.minecraft.server.v1_13_R2.EnumMoveType;
-import net.minecraft.server.v1_13_R2.MinecraftServer;
-import net.minecraft.server.v1_13_R2.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_13_R2.PlayerInteractManager;
-import net.minecraft.server.v1_13_R2.WorldServer;
-
+import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -37,6 +24,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
 
     Player keepInformed; // / who to send the messages to
@@ -48,24 +39,24 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
     GameMode gamemode = GameMode.SURVIVAL;
     Location location;
     CraftScoreboard scoreboard;
-    
+
     public CraftVirtualPlayer(CraftServer cserver, MinecraftServer mcserver, WorldServer worldServer,
-            GameProfile gameProfile, PlayerInteractManager pim, Location loc) {
+                              GameProfile gameProfile, PlayerInteractManager pim, Location loc) {
         super(cserver, new EntityPlayer(mcserver, worldServer, gameProfile, pim));
         this.location = loc;
     }
-    
+
     public CraftVirtualPlayer(CraftServer cserver, MinecraftServer mcserver, WorldServer worldServer,
-            GameProfile gameProfile, PlayerInteractManager pim) {
+                              GameProfile gameProfile, PlayerInteractManager pim) {
         super(cserver, new EntityPlayer(mcserver, worldServer, gameProfile, pim));
         this.location = this.getLocation();
     }
-    
+
     public CraftVirtualPlayer(CraftServer cserver, EntityPlayer ep) {
         super(cserver, ep);
         this.location = this.getLocation();
     }
-    
+
     @Override
     public List<org.bukkit.entity.Entity> getNearbyEntities(double x, double y, double z) {
         List<net.minecraft.server.v1_13_R2.Entity> notchEntityList = this.entity.world.getEntities(this.entity, this.entity.getBoundingBox().grow(x, y, z));
@@ -85,12 +76,12 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
     public boolean addPotionEffect(PotionEffect effect) {
         return false;
     }
-    
+
     @Override
     public boolean addPotionEffect(PotionEffect effect, boolean force) {
         return false;
     }
-    
+
     @Override
     public boolean addPotionEffects(Collection<PotionEffect> effects) {
         return false;
@@ -112,6 +103,11 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
     }
 
     @Override
+    public GameMode getGameMode() {
+        return gamemode;
+    }
+
+    @Override
     public void setGameMode(GameMode gamemode) {
         try {
             super.setGameMode(gamemode);
@@ -119,11 +115,6 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
             /* say nothing*/
         }
         this.gamemode = gamemode;
-    }
-
-    @Override
-    public GameMode getGameMode() {
-        return gamemode;
     }
 
     @Override
@@ -237,6 +228,10 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
         return location;
     }
 
+    public void setLocation(Location l) {
+        location = l;
+    }
+
     @Override
     public boolean isOnline() {
         return online;
@@ -268,7 +263,12 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
                 + "&e d=&7" + isDead() + "&e loc=&4" + world + "&4"
                 + Util.getLocString(location) + "&e gm=&8" + getGameMode();
     }
-    
+
+    @Override
+    public CraftScoreboard getScoreboard() {
+        return this.scoreboard;
+    }
+
     @Override
     public void setScoreboard(Scoreboard scoreboard) {
         Object s = null;
@@ -289,15 +289,6 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
     }
 
     @Override
-    public CraftScoreboard getScoreboard() {
-        return this.scoreboard;
-    }
-
-    public void setLocation(Location l) {
-        location = l;
-    }
-
-    @Override
     public Player getInformed() {
         return keepInformed;
     }
@@ -312,7 +303,7 @@ public class CraftVirtualPlayer extends CraftPlayer implements VirtualPlayer {
         if (this.getHandle().playerConnection == null) {
             return;
         }
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld)loc.getWorld()).getHandle(), new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) loc.getWorld()).getHandle(), new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
         Material material = Material.getMaterial(block);
         packet.block = CraftMagicNumbers.getBlock(material, data);
         this.getHandle().playerConnection.sendPacket(packet);

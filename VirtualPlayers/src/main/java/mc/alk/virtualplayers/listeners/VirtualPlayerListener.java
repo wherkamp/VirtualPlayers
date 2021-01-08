@@ -2,7 +2,6 @@ package mc.alk.virtualplayers.listeners;
 
 import mc.alk.virtualplayers.api.VirtualPlayer;
 import mc.alk.virtualplayers.api.Vps;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,7 +12,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 /**
  * Handles all Events related to VirtualPlayer instances.
- * 
+ *
  * @author alkarin
  */
 public class VirtualPlayerListener implements Listener {

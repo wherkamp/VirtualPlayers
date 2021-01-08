@@ -1,12 +1,5 @@
 package mc.alk.virtualplayers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
-
 import mc.alk.virtualplayers.api.VirtualPlayer;
 import mc.alk.virtualplayers.api.VirtualPlayerFactory;
 import mc.alk.virtualplayers.api.VirtualPlayersAPI;
@@ -16,16 +9,17 @@ import mc.alk.virtualplayers.executors.VPExecutor;
 import mc.alk.virtualplayers.listeners.VirtualPlayerListener;
 import mc.euro.bukkitinterface.BukkitInterface;
 import mc.euro.version.VersionFactory;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.*;
+import java.util.logging.Level;
+
 public class VirtualPlayers extends JavaPlugin implements VirtualPlayersAPI {
 
-    private static final String NMS = VersionFactory.getNmsPackage();
-
     static final VirtualPlayerFactory factory = VirtualPlayerFactory.newInstance();
+    private static final String NMS = VersionFactory.getNmsPackage();
 
     @Override
     public void onEnable() {
@@ -42,7 +36,7 @@ public class VirtualPlayers extends JavaPlugin implements VirtualPlayersAPI {
     public void onDisable() {
         deleteVirtualPlayers();
     }
-    
+
     private boolean isServerCompatible() {
         String className = "mc.alk.virtualplayers.nms." + NMS + ".CraftVirtualPlayer";
         try {
@@ -65,22 +59,22 @@ public class VirtualPlayers extends JavaPlugin implements VirtualPlayersAPI {
         players.addAll(BukkitInterface.getOnlinePlayers());
         return players;
     }
-    
+
     @Override
     public Player[] getOnlinePlayersArray() {
         return getOnlinePlayers().toArray(new Player[0]);
     }
-    
+
     @Override
     public Collection<VirtualPlayer> getVirtualPlayers() {
         return VirtualPlayerFactory.getVirtualPlayers();
     }
-    
+
     @Override
     public List<VirtualPlayer> getVirtualPlayersList() {
         return VirtualPlayerFactory.getNewPlayerList();
     }
-    
+
     @Override
     public void setGlobalMessages(boolean visibility) {
         VirtualPlayerFactory.getVirtualPlayers().forEach((vp) -> {

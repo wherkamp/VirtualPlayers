@@ -1,35 +1,9 @@
 package mc.alk.virtualplayers.executors;
 
-import java.io.File;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import mc.alk.virtualplayers.api.Vps;
 import mc.alk.virtualplayers.util.InventoryUtil;
-
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -38,58 +12,29 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @author alkarin
  */
 public class CustomCommandExecutor implements CommandExecutor {
 
     public static final String version = "2.1.2";
-    final int commandIndex;
-
-    @Retention(RetentionPolicy.RUNTIME)
-    public static @interface MCCommand {
-
-        /// the cmd and all its aliases, can be blank if you want to do something when they just type
-        /// the command only
-        String[] cmds() default {};
-
-        /// subCommands
-        String[] subCmds() default {};
-
-        /// Verify the number of parameters,
-        int min() default 0;
-
-        int max() default Integer.MAX_VALUE;
-
-        int exact() default -1;
-
-        int order() default -1;
-
-        float helpOrder() default Integer.MAX_VALUE;
-
-        boolean admin() default false; /// admin
-
-        boolean op() default false; /// op
-
-        String usage() default "";
-
-        String usageNode() default "";
-
-        String perm() default ""; /// permission node
-
-        int[] alphanum() default {}; /// only alpha numeric
-    }
-
+    public static final String ONLY_INGAME = ChatColor.RED + "You need to be in game to use this command";
     static final boolean DEBUG = false;
-    private HashMap<String, TreeMap<Integer, MethodWrapper>> methods
-            = new HashMap<String, TreeMap<Integer, MethodWrapper>>();
-    private HashMap<String, Map<String, TreeMap<Integer, MethodWrapper>>> subCmdMethods
-            = new HashMap<String, Map<String, TreeMap<Integer, MethodWrapper>>>();
-
+    static final String DEFAULT_CMD = "_dcmd_";
+    static final int LINES_PER_PAGE = 8;
+    final int commandIndex;
     final Plugin plugin;
     final Logger log;
-    int useAlias = -1;
-
     protected PriorityQueue<MethodWrapper> usage = new PriorityQueue<MethodWrapper>(2, new Comparator<MethodWrapper>() {
         @Override
         public int compare(MethodWrapper mw1, MethodWrapper mw2) {
@@ -104,37 +49,11 @@ public class CustomCommandExecutor implements CommandExecutor {
             return c != 0 ? c : new Integer(cmd1.hashCode()).compareTo(cmd2.hashCode());
         }
     });
-    static final String DEFAULT_CMD = "_dcmd_";
-
-    /**
-     * Custom arguments class so that we can return a modified arguments
-     */
-    protected class Arguments {
-
-        public Object[] args;
-    }
-
-    class MethodWrapper {
-
-        public MethodWrapper(Object obj, Method method) {
-            this.obj = obj;
-            this.method = method;
-        }
-
-        public Object obj; /// Object instance the method belongs to
-        public Method method; /// Method
-        public String usage;
-        Float helpOrder = null;
-
-        public MCCommand getCommand() {
-            return this.method.getAnnotation(MCCommand.class);
-        }
-
-        public float getHelpOrder() {
-            return helpOrder != null
-                    ? helpOrder : this.method.getAnnotation(MCCommand.class).helpOrder();
-        }
-    }
+    int useAlias = -1;
+    private HashMap<String, TreeMap<Integer, MethodWrapper>> methods
+            = new HashMap<String, TreeMap<Integer, MethodWrapper>>();
+    private HashMap<String, Map<String, TreeMap<Integer, MethodWrapper>>> subCmdMethods
+            = new HashMap<String, Map<String, TreeMap<Integer, MethodWrapper>>>();
 
     protected CustomCommandExecutor(Plugin plugin) {
         this(plugin, 0);
@@ -145,6 +64,59 @@ public class CustomCommandExecutor implements CommandExecutor {
         this.log = plugin.getLogger();
         this.commandIndex = commandIndex;
         addMethods(this, getClass().getMethods());
+    }
+
+    public static String colorChat(String msg) {
+        return msg.replace('&', (char) 167);
+    }
+
+    public static Player findPlayer(String name) {
+        if (name == null) {
+            return null;
+        }
+        Player foundPlayer = Bukkit.getPlayer(name);
+        if (foundPlayer != null) {
+            return foundPlayer;
+        }
+        foundPlayer = Vps.getApi().getPlayer(name);
+        if (foundPlayer != null) {
+            return foundPlayer;
+        }
+        Player[] online = Vps.getApi().getOnlinePlayersArray();
+
+        for (Player player : online) {
+            String playerName = player.getName();
+
+            if (playerName.equalsIgnoreCase(name)) {
+                foundPlayer = player;
+                break;
+            }
+            if (playerName.toLowerCase().indexOf(name.toLowerCase(), 0) != -1) {
+                if (foundPlayer != null) {
+                    return null;
+                }
+
+                foundPlayer = player;
+            }
+        }
+
+        return foundPlayer;
+    }
+
+    public static OfflinePlayer findOfflinePlayer(String name) {
+        OfflinePlayer p = findPlayer(name);
+        if (p != null) {
+            return p;
+        } else {
+            /// Iterate over the worlds to see if a player.dat file exists
+            for (World w : Bukkit.getWorlds()) {
+                File f = new File(w.getName() + "/players/" + name + ".dat");
+                if (f.exists()) {
+                    return Bukkit.getOfflinePlayer(name);
+                }
+            }
+            return null;
+        }
     }
 
     /**
@@ -290,17 +262,6 @@ public class CustomCommandExecutor implements CommandExecutor {
         return "<string> ";
     }
 
-    public class CommandException {
-
-        final IllegalArgumentException err;
-        final MethodWrapper mw;
-
-        public CommandException(IllegalArgumentException err, MethodWrapper mw) {
-            this.err = err;
-            this.mw = mw;
-        }
-    }
-
     @Override
     @SuppressWarnings("ConstantConditions")
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -408,12 +369,10 @@ public class CustomCommandExecutor implements CommandExecutor {
         log.log(Level.SEVERE, null, e);
     }
 
-    public static final String ONLY_INGAME = ChatColor.RED + "You need to be in game to use this command";
-
     @SuppressWarnings("ConstantConditions")
     protected Arguments verifyArgs(MethodWrapper mwrapper, MCCommand cmd, CommandSender sender,
-            Command command, String label, String[] args,
-            boolean hasCmd, boolean hasSubCmd) throws IllegalArgumentException {
+                                   Command command, String label, String[] args,
+                                   boolean hasCmd, boolean hasSubCmd) throws IllegalArgumentException {
         if (DEBUG) {
             log.info(" method=" + mwrapper.method.getName() + " verifyArgs " + cmd + " sender=" + sender
                     + ", label=" + label + " args=" + Arrays.toString(args));
@@ -529,7 +488,7 @@ public class CustomCommandExecutor implements CommandExecutor {
 
     @SuppressWarnings("UnusedParameters")
     protected Object verifyArg(CommandSender sender, Class<?> clazz, Command command,
-            String[] args, int curIndex, AtomicInteger numUsedStrings) {
+                               String[] args, int curIndex, AtomicInteger numUsedStrings) {
         numUsedStrings.set(0);
         if (Command.class == clazz) {
             return command;
@@ -672,8 +631,6 @@ public class CustomCommandExecutor implements CommandExecutor {
         return sender.isOp();
     }
 
-    static final int LINES_PER_PAGE = 8;
-
     @SuppressWarnings("UnnecessaryContinue")
     public void help(CommandSender sender, Command command, String[] args) {
         Integer page = 1;
@@ -790,60 +747,81 @@ public class CustomCommandExecutor implements CommandExecutor {
         return true;
     }
 
-    public static String colorChat(String msg) {
-        return msg.replace('&', (char) 167);
-    }
-
-    public static Player findPlayer(String name) {
-        if (name == null) {
-            return null;
-        }
-        Player foundPlayer = Bukkit.getPlayer(name);
-        if (foundPlayer != null) {
-            return foundPlayer;
-        }
-        foundPlayer = Vps.getApi().getPlayer(name);
-        if (foundPlayer != null) {
-            return foundPlayer;
-        }
-        Player[] online = Vps.getApi().getOnlinePlayersArray();
-
-        for (Player player : online) {
-            String playerName = player.getName();
-
-            if (playerName.equalsIgnoreCase(name)) {
-                foundPlayer = player;
-                break;
-            }
-            if (playerName.toLowerCase().indexOf(name.toLowerCase(), 0) != -1) {
-                if (foundPlayer != null) {
-                    return null;
-                }
-
-                foundPlayer = player;
-            }
-        }
-
-        return foundPlayer;
-    }
-
-    public static OfflinePlayer findOfflinePlayer(String name) {
-        OfflinePlayer p = findPlayer(name);
-        if (p != null) {
-            return p;
-        } else {
-            /// Iterate over the worlds to see if a player.dat file exists
-            for (World w : Bukkit.getWorlds()) {
-                File f = new File(w.getName() + "/players/" + name + ".dat");
-                if (f.exists()) {
-                    return Bukkit.getOfflinePlayer(name);
-                }
-            }
-            return null;
-        }
-    }
-
     protected void useAliasIndex(int index) {
         useAlias = index;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface MCCommand {
+
+        /// the cmd and all its aliases, can be blank if you want to do something when they just type
+        /// the command only
+        String[] cmds() default {};
+
+        /// subCommands
+        String[] subCmds() default {};
+
+        /// Verify the number of parameters,
+        int min() default 0;
+
+        int max() default Integer.MAX_VALUE;
+
+        int exact() default -1;
+
+        int order() default -1;
+
+        float helpOrder() default Integer.MAX_VALUE;
+
+        boolean admin() default false; /// admin
+
+        boolean op() default false; /// op
+
+        String usage() default "";
+
+        String usageNode() default "";
+
+        String perm() default ""; /// permission node
+
+        int[] alphanum() default {}; /// only alpha numeric
+    }
+
+    /**
+     * Custom arguments class so that we can return a modified arguments
+     */
+    protected class Arguments {
+
+        public Object[] args;
+    }
+
+    class MethodWrapper {
+
+        public Object obj; /// Object instance the method belongs to
+        public Method method; /// Method
+        public String usage;
+        Float helpOrder = null;
+        public MethodWrapper(Object obj, Method method) {
+            this.obj = obj;
+            this.method = method;
+        }
+
+        public MCCommand getCommand() {
+            return this.method.getAnnotation(MCCommand.class);
+        }
+
+        public float getHelpOrder() {
+            return helpOrder != null
+                    ? helpOrder : this.method.getAnnotation(MCCommand.class).helpOrder();
+        }
+    }
+
+    public class CommandException {
+
+        final IllegalArgumentException err;
+        final MethodWrapper mw;
+
+        public CommandException(IllegalArgumentException err, MethodWrapper mw) {
+            this.err = err;
+            this.mw = mw;
+        }
     }
 }

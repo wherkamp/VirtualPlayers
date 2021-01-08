@@ -1,11 +1,5 @@
 package mc.alk.virtualplayers.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -13,51 +7,17 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
 public class InventoryUtil {
 
     static final String version = "InventoryUtil 2.1.4";
     static final boolean DEBUG = false;
     static final Map<Material, Armor> armor = initArmor();
-
-    public enum ArmorType {
-
-        HELM, CHEST, LEGGINGS, BOOTS;
-    }
-
-    public enum ArmorLevel {
-
-        WOOL, LEATHER, IRON, GOLD, CHAINMAIL, DIAMOND;
-    }
-
-    public static class Armor {
-
-        public ArmorLevel level;
-        public ArmorType type;
-
-        Armor(ArmorType at, ArmorLevel al) {
-            this.level = al;
-            this.type = at;
-        }
-    }
-
-    public static class EnchantmentWithLevel {
-
-        public EnchantmentWithLevel() {
-        }
-
-        public EnchantmentWithLevel(boolean all) {
-            this.all = all;
-        }
-
-        public Enchantment e;
-        public Integer lvl;
-        boolean all = false;
-
-        @Override
-        public String toString() {
-            return (e != null ? e.getName() : "null") + ":" + lvl;
-        }
-    }
 
     private static Map<Material, Armor> initArmor() {
         Map<Material, Armor> temp = new HashMap<Material, Armor>(); // or EnumMap
@@ -371,13 +331,13 @@ public class InventoryUtil {
     }
 
     public static void addItemToInventory(Player player, ItemStack itemStack,
-            int stockAmount) {
+                                          int stockAmount) {
         addItemToInventory(player, itemStack, stockAmount, true, false);
     }
 
     @SuppressWarnings("deprecation")
     public static void addItemsToInventory(Player p, List<ItemStack> items,
-            boolean ignoreHelmet) {
+                                           boolean ignoreHelmet) {
         for (ItemStack is : items) {
             InventoryUtil.addItemToInventory(p, is.clone(), is.getAmount(),
                     false, false);
@@ -390,7 +350,7 @@ public class InventoryUtil {
 
     @SuppressWarnings("deprecation")
     public static void addItemToInventory(Player player, ItemStack itemStack,
-            int stockAmount, boolean update, boolean ignoreHelmet) {
+                                          int stockAmount, boolean update, boolean ignoreHelmet) {
         PlayerInventory inv = player.getInventory();
         Material itemType = itemStack.getType();
         if (armor.containsKey(itemType)) {
@@ -623,39 +583,6 @@ public class InventoryUtil {
         return ewl;
     }
 
-    public boolean addEnchantments(ItemStack is, String[] args) {
-        Map<Enchantment, Integer> encs = new HashMap<Enchantment, Integer>();
-        for (String s : args) {
-            EnchantmentWithLevel ewl = getEnchantment(s);
-            if (ewl != null) {
-                if (ewl.all) {
-                    return addAllEnchantments(is);
-                }
-                encs.put(ewl.e, ewl.lvl);
-            }
-        }
-        addEnchantments(is, encs);
-        return true;
-    }
-
-    public void addEnchantments(ItemStack is,
-            Map<Enchantment, Integer> enchantments) {
-        for (Enchantment e : enchantments.keySet()) {
-            if (e.canEnchantItem(is)) {
-                is.addUnsafeEnchantment(e, enchantments.get(e));
-            }
-        }
-    }
-
-    public boolean addAllEnchantments(ItemStack is) {
-        for (Enchantment enc : Enchantment.values()) {
-            if (enc.canEnchantItem(is)) {
-                is.addUnsafeEnchantment(enc, enc.getMaxLevel());
-            }
-        }
-        return true;
-    }
-
     /**
      * For Serializing an item or printing
      *
@@ -712,6 +639,77 @@ public class InventoryUtil {
     private static void debug(String output) {
         if (DEBUG) {
             System.out.println(output);
+        }
+    }
+
+    public boolean addEnchantments(ItemStack is, String[] args) {
+        Map<Enchantment, Integer> encs = new HashMap<Enchantment, Integer>();
+        for (String s : args) {
+            EnchantmentWithLevel ewl = getEnchantment(s);
+            if (ewl != null) {
+                if (ewl.all) {
+                    return addAllEnchantments(is);
+                }
+                encs.put(ewl.e, ewl.lvl);
+            }
+        }
+        addEnchantments(is, encs);
+        return true;
+    }
+
+    public void addEnchantments(ItemStack is,
+                                Map<Enchantment, Integer> enchantments) {
+        for (Enchantment e : enchantments.keySet()) {
+            if (e.canEnchantItem(is)) {
+                is.addUnsafeEnchantment(e, enchantments.get(e));
+            }
+        }
+    }
+
+    public boolean addAllEnchantments(ItemStack is) {
+        for (Enchantment enc : Enchantment.values()) {
+            if (enc.canEnchantItem(is)) {
+                is.addUnsafeEnchantment(enc, enc.getMaxLevel());
+            }
+        }
+        return true;
+    }
+
+    public enum ArmorType {
+
+        HELM, CHEST, LEGGINGS, BOOTS;
+    }
+
+    public enum ArmorLevel {
+
+        WOOL, LEATHER, IRON, GOLD, CHAINMAIL, DIAMOND;
+    }
+
+    public static class Armor {
+
+        public ArmorLevel level;
+        public ArmorType type;
+
+        Armor(ArmorType at, ArmorLevel al) {
+            this.level = al;
+            this.type = at;
+        }
+    }
+
+    public static class EnchantmentWithLevel {
+
+        public Enchantment e;
+        public Integer lvl;
+        boolean all = false;
+        public EnchantmentWithLevel() {
+        }
+        public EnchantmentWithLevel(boolean all) {
+            this.all = all;
+        }
+
+        @Override
+        public String toString() {
+            return (e != null ? e.getName() : "null") + ":" + lvl;
         }
     }
 
