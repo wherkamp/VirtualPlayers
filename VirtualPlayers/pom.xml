@@ -69,7 +69,23 @@
         </dependency>
         <dependency>
             <groupId>mc.alk</groupId>
+            <artifactId>vp-v1_13_R1</artifactId>
+            <version>static_version</version>
+            <type>jar</type>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.alk</groupId>
             <artifactId>vp-v1_13_R2</artifactId>
+            <version>static_version</version>
+            <type>jar</type>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>vp-v1_14_R1</artifactId>
             <version>static_version</version>
             <type>jar</type>
             <scope>compile</scope>
