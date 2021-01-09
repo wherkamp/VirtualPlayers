@@ -5,7 +5,6 @@
         <groupId>mc.alk</groupId>
         <artifactId>vp-parent-pom</artifactId>
         <version>static_version</version>
-        <relativePath>../../</relativePath>
     </parent>
     <groupId>mc.alk</groupId>
     <artifactId>vp-v1_13_R1</artifactId>
