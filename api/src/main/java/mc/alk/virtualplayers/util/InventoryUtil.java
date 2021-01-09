@@ -21,12 +21,12 @@ public class InventoryUtil {
 
     private static Map<Material, Armor> initArmor() {
         Map<Material, Armor> temp = new HashMap<Material, Armor>(); // or EnumMap
-        temp.put(Material.WOOL, new Armor(ArmorType.HELM, ArmorLevel.WOOL));
+        temp.put(Material.WHITE_WOOL, new Armor(ArmorType.HELM, ArmorLevel.WOOL));
         temp.put(Material.LEATHER_HELMET, new Armor(ArmorType.HELM,
                 ArmorLevel.LEATHER));
         temp.put(Material.IRON_HELMET, new Armor(ArmorType.HELM,
                 ArmorLevel.IRON));
-        temp.put(Material.GOLD_HELMET, new Armor(ArmorType.HELM,
+        temp.put(Material.GOLDEN_HELMET, new Armor(ArmorType.HELM,
                 ArmorLevel.GOLD));
         temp.put(Material.DIAMOND_HELMET, new Armor(ArmorType.HELM,
                 ArmorLevel.DIAMOND));
@@ -37,7 +37,7 @@ public class InventoryUtil {
                 ArmorLevel.LEATHER));
         temp.put(Material.IRON_CHESTPLATE, new Armor(ArmorType.CHEST,
                 ArmorLevel.IRON));
-        temp.put(Material.GOLD_CHESTPLATE, new Armor(ArmorType.CHEST,
+        temp.put(Material.GOLDEN_CHESTPLATE, new Armor(ArmorType.CHEST,
                 ArmorLevel.GOLD));
         temp.put(Material.DIAMOND_CHESTPLATE, new Armor(ArmorType.CHEST,
                 ArmorLevel.DIAMOND));
@@ -48,7 +48,7 @@ public class InventoryUtil {
                 ArmorLevel.LEATHER));
         temp.put(Material.IRON_LEGGINGS, new Armor(ArmorType.LEGGINGS,
                 ArmorLevel.IRON));
-        temp.put(Material.GOLD_LEGGINGS, new Armor(ArmorType.LEGGINGS,
+        temp.put(Material.GOLDEN_LEGGINGS, new Armor(ArmorType.LEGGINGS,
                 ArmorLevel.GOLD));
         temp.put(Material.DIAMOND_LEGGINGS, new Armor(ArmorType.LEGGINGS,
                 ArmorLevel.DIAMOND));
@@ -59,7 +59,7 @@ public class InventoryUtil {
                 ArmorLevel.LEATHER));
         temp.put(Material.IRON_BOOTS, new Armor(ArmorType.BOOTS,
                 ArmorLevel.IRON));
-        temp.put(Material.GOLD_BOOTS, new Armor(ArmorType.BOOTS,
+        temp.put(Material.GOLDEN_BOOTS, new Armor(ArmorType.BOOTS,
                 ArmorLevel.GOLD));
         temp.put(Material.DIAMOND_BOOTS, new Armor(ArmorType.BOOTS,
                 ArmorLevel.DIAMOND));
@@ -258,15 +258,7 @@ public class InventoryUtil {
 
     // / Get the Material
     public static Material getMat(String name) {
-        Integer id = null;
-        try {
-            id = Integer.parseInt(name);
-        } catch (Exception e) {
-        }
-        if (id == null) {
-            id = getMaterialID(name);
-        }
-        return id != null && id >= 0 ? Material.getMaterial(id) : null;
+return Material.getMaterial(name);
     }
 
     // / This allows for abbreviations to work, useful for sign etc
@@ -475,12 +467,7 @@ public class InventoryUtil {
     }
 
     public static Object getCommonName(ItemStack is) {
-        int id = is.getTypeId();
-        int datavalue = is.getDurability();
-        if (datavalue > 0) {
-            return Material.getMaterial(id).toString() + ":" + datavalue;
-        }
-        return Material.getMaterial(id).toString();
+        return is.getType();
     }
 
     public static boolean isItem(String str) {
@@ -559,7 +546,7 @@ public class InventoryUtil {
 
         // System.out.println("String = <" + str +">   " + lvl);
         try {
-            e = Enchantment.getById(Integer.valueOf(str));
+            e = Enchantment.getByName(str);
         } catch (Exception err) {
         }
         if (e == null) {
@@ -632,9 +619,6 @@ public class InventoryUtil {
         return a.level == lvl;
     }
 
-    public static ItemStack getWool(int color) {
-        return new ItemStack(Material.WOOL, 1, (short) color);
-    }
 
     private static void debug(String output) {
         if (DEBUG) {

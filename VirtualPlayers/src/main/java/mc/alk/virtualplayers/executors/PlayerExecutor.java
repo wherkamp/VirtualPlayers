@@ -129,7 +129,7 @@ public class PlayerExecutor extends VPBaseExecutor {
         Bukkit.getPluginManager().callEvent(ede);
         sendMessage(sender, "&6" + vp.getName() + "&e " + action.name() + " &4"
                 + b.getType() + "&2  with a &a" + inhand.getType().name());
-        if (b.getType() == Material.SIGN || b.getType() == Material.SIGN_POST) {
+        if (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN) {
             Sign s = (Sign) b.getState();
             String[] lines = s.getLines();
             for (int i = 1; i <= lines.length; i++) {
@@ -155,7 +155,7 @@ public class PlayerExecutor extends VPBaseExecutor {
         Block b = l.getWorld().getBlockAt(l);
 
         sendMessage(sender, "&6" + vp.getName() + "&e examining location " + l + " &4" + b.getType());
-        if (b.getType() == Material.SIGN || b.getType() == Material.SIGN_POST) {
+        if (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN) {
             Sign s = (Sign) b.getState();
             String[] lines = s.getLines();
             for (int i = 1; i <= lines.length; i++) {
