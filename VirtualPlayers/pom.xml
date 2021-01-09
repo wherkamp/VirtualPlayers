@@ -47,7 +47,7 @@
         <dependency>
             <groupId>mc.euro</groupId>
             <artifactId>BukkitInterface</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <type>jar</type>
             <scope>compile</scope>
             <optional>true</optional>
@@ -115,7 +115,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.10</version>
+                <version>3.4.2</version>
             </extension>
         </extensions>
         <resources>
@@ -144,7 +144,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
